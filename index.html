@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хвилина мовчання</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Центральні годинники */
+        .clock-container {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .clock {
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 200;
+            letter-spacing: 0.05em;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 30px rgba(255,255,255,0.1);
+            font-family: 'Courier New', monospace;
+            position: relative;
+            display: inline-block;
+        }
+
+        .clock::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+        }
+
+        /* Трекер як у SoundCloud */
+        .player-container {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            margin-top: 40px;
+        }
+
+        .track-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #f50;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            background: #e64a00;
+        }
+
+        .track-info {
+            text-align: left;
+        }
+
+        .track-title {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .track-artist {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        /* Waveform як у SoundCloud */
+        .waveform-container {
+            position: relative;
+            height: 60px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            overflow: hidden;
+            cursor: pointer;
+            margin: 15px 0;
+        }
+
+        .waveform {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            padding: 0 2px;
+            gap: 2px;
+        }
+
+        .wave-bar {
+            flex: 1;
+            background: #444;
+            border-radius: 1px;
+            transition: background 0.1s;
+            min-width: 2px;
+        }
+
+        .wave-bar.played {
+            background: #f50;
+        }
+
+        .wave-bar:hover {
+            background: #666;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 2px;
+            background: #f50;
+            pointer-events: none;
+            box-shadow: 0 0 10px #f50;
+        }
+
+        /* Час треку */
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #666;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Статус авто-відтворення */
+        .auto-play-status {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 85, 0, 0.1);
+            border: 1px solid rgba(255, 85, 0, 0.3);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #f50;
+            display: none;
+        }
+
+        .auto-play-status.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Фонові ефекти */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            z-index: 1;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from { transform: translateY(100vh) translateX(0); }
+            to { transform: translateY(-10vh) translateX(100px); }
+        }
+
+        /* Синхронізація статус */
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.75rem;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+            transition: background 0.3s;
+        }
+
+        .sync-dot.synced {
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .sync-dot.syncing {
+            background: #ff0;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Мобільна адаптація */
+        @media (max-width: 600px) {
+            .player-container {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .track-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .track-info {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Центральні годинники -->
+        <div class="clock-container">
+            <div class="clock" id="clock">00:00:00</div>
+            <div class="date-display" id="date">Завантаження...</div>
+        </div>
+
+        <!-- Плеєр як у SoundCloud -->
+        <div class="player-container">
+            <div class="track-header">
+                <button class="play-btn" id="playBtn">▶</button>
+                <div class="track-info">
+                    <div class="track-title">Хвилина мовчання</div>
+                    <div class="track-artist">Щоденна пам'ять</div>
+                </div>
+            </div>
+
+            <!-- Waveform візуалізація -->
+            <div class="waveform-container" id="waveformContainer">
+                <div class="waveform" id="waveform"></div>
+                <div class="progress-line" id="progressLine" style="left: 0%"></div>
+            </div>
+
+            <div class="time-display">
+                <span id="currentTime">0:00</span>
+                <span id="duration">1:00</span>
+            </div>
+
+            <div class="auto-play-status" id="autoPlayStatus">
+                🔊 Автоматичне відтворення о 9:00 (Український час)
+            </div>
+        </div>
+    </div>
+
+    <!-- Статус синхронізації -->
+    <div class="sync-status">
+        <span>NTP Синхронізація:</span>
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncText">Очікування...</span>
+    </div>
+
+    <!-- Аудіо елемент -->
+    <audio id="audioPlayer" preload="auto">
+        <!-- Замініть шлях на ваш файл у репозиторії GitHub -->
+        <source src="silence.mp3" type="audio/mpeg">
+        Ваш браузер не підтримує аудіо.
+    </audio>
+
+    <script>
+        // Конфігурація
+        const CONFIG = {
+            targetHour: 9,
+            targetMinute: 0,
+            ntpServers: [
+                'https://worldtimeapi.org/api/timezone/Europe/Kiev',
+                'https://timeapi.io/api/Time/current/zone?timeZone=Europe/Kiev'
+            ],
+            audioFile: 'silence.mp3' // Шлях до файлу в репозиторії
+        };
+
+        // Стан програми
+        let state = {
+            timeOffset: 0,
+            isPlaying: false,
+            hasAutoPlayedToday: false,
+            lastCheckDate: null,
+            audioContext: null,
+            analyser: null,
+            dataArray: null,
+            animationId: null
+        };
+
+        // Ініціалізація фонових частинок
+        function initParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.opacity = Math.random() * 0.5;
+                container.appendChild(particle);
+            }
+        }
+
+        // Генерація waveform
+        function generateWaveform() {
+            const container = document.getElementById('waveform');
+            const bars = 100;
+            
+            for (let i = 0; i < bars; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar';
+                // Створюємо випадкову висоту для ефекту аудіохвиль
+                const height = 20 + Math.random() * 80;
+                bar.style.height = height + '%';
+                container.appendChild(bar);
+            }
+        }
+
+        // Синхронізація часу з NTP (Україна)
+        async function syncTime() {
+            const syncDot = document.getElementById('syncDot');
+            const syncText = document.getElementById('syncText');
+            
+            syncDot.className = 'sync-dot syncing';
+            syncText.textContent = 'Синхронізація...';
+
+            try {
+                // Спробуємо отримати точний час з декількох джерел
+                let serverTime = null;
+                
+                for (const server of CONFIG.ntpServers) {
+                    try {
+                        const startTime = Date.now();
+                        const response = await fetch(server);
+                        const data = await response.json();
+                        const endTime = Date.now();
+                        const latency = (endTime - startTime) / 2;
+                        
+                        if (server.includes('worldtimeapi')) {
+                            serverTime = new Date(data.utc_datetime).getTime() + latency;
+                        } else if (server.includes('timeapi.io')) {
+                            serverTime = new Date(data.dateTime).getTime() + latency;
+                        }
+                        
+                        if (serverTime) break;
+                    } catch (e) {
+                        continue;
+                    }
+                }
+
+                if (serverTime) {
+                    state.timeOffset = serverTime - Date.now();
+                    syncDot.className = 'sync-dot synced';
+                    syncText.textContent = 'Синхронізовано з NTP';
+                    console.log('Час синхронізовано. Зміщення:', state.timeOffset, 'мс');
+                } else {
+                    throw new Error('Всі сервери недоступні');
+                }
+            } catch (error) {
+                console.warn('Не вдалося синхронізувати час:', error);
+                syncDot.className = 'sync-dot';
+                syncText.textContent = 'Локальний час';
+                state.timeOffset = 0;
+            }
+        }
+
+        // Отримання поточного синхронізованого часу
+        function getSyncedTime() {
+            return new Date(Date.now() + state.timeOffset);
+        }
+
+        // Форматування часу
+        function formatTime(date) {
+            return date.toLocaleTimeString('uk-UA', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                timeZone: 'Europe/Kiev'
+            });
+        }
+
+        // Форматування дати
+        function formatDate(date) {
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Europe/Kiev'
+            };
+            return date.toLocaleDateString('uk-UA', options);
+        }
+
+        // Оновлення годинника
+        function updateClock() {
+            const now = getSyncedTime();
+            document.getElementById('clock').textContent = formatTime(now);
+            document.getElementById('date').textContent = formatDate(now);
+            
+            checkAutoPlay(now);
+        }
+
+        // Перевірка автоматичного відтворення о 9:00
+        function checkAutoPlay(now) {
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentDate = now.toDateString();
+
+            // Скидаємо прапорець, якщо нова доба
+            if (state.lastCheckDate !== currentDate) {
+                state.hasAutoPlayedToday = false;
+                state.lastCheckDate = currentDate;
+                document.getElementById('autoPlayStatus').classList.remove('active');
+            }
+
+            // Перевіряємо чи зараз 9:00 (з запасом в 1 хвилину для надійності)
+            if (!state.hasAutoPlayedToday && 
+                currentHour === CONFIG.targetHour && 
+                currentMinute === CONFIG.targetMinute) {
+                
+                playAudio();
+                state.hasAutoPlayedToday = true;
+                document.getElementById('autoPlayStatus').classList.add('active');
+            }
+        }
+
+        // Відтворення аудіо
+        function playAudio() {
+            const audio = document.getElementById('audioPlayer');
+            const btn = document.getElementById('playBtn');
+            
+            audio.play().then(() => {
+                state.isPlaying = true;
+                btn.textContent = '⏸';
+                animateWaveform();
+            }).catch(err => {
+                console.error('Помилка відтворення:', err);
+                // Якщо автовідтворення заблоковане, показуємо повідомлення
+                if (err.name === 'NotAllowedError') {
+                    document.getElementById('autoPlayStatus').textContent = 
+                        '⚠️ Клікніть Play для відтворення (браузер блокує автовідтворення)';
+                    document.getElementById('autoPlayStatus').classList.add('active');
+                }
+            });
+        }
+
+        // Пауза
+        function pauseAudio() {
+            const audio = document.getElementById('audioPlayer');
+            const btn = document.getElementById('playBtn');
+            
+            audio.pause();
+            state.isPlaying = false;
+            btn.textContent = '▶';
+            cancelAnimationFrame(state.animationId);
+        }
+
+        // Перемикання відтворення
+        function togglePlay() {
+            if (state.isPlaying) {
+                pauseAudio();
+            } else {
+                playAudio();
+            }
+        }
+
+        // Анімація waveform
+        function animateWaveform() {
+            const audio = document.getElementById('audioPlayer');
+            if (!audio.duration) return;
+
+            const progress = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progressLine').style.left = progress + '%';
+            
+            // Оновлюємо кольори барів
+            const bars = document.querySelectorAll('.wave-bar');
+            const playedBars = Math.floor((progress / 100) * bars.length);
+            
+            bars.forEach((bar, index) => {
+                if (index < playedBars) {
+                    bar.classList.add('played');
+                } else {
+                    bar.classList.remove('played');
+                }
+            });
+
+            // Оновлення часу
+            document.getElementById('currentTime').textContent = 
+                formatAudioTime(audio.currentTime);
+            document.getElementById('duration').textContent = 
+                formatAudioTime(audio.duration || 60);
+
+            if (state.isPlaying) {
+                state.animationId = requestAnimationFrame(animateWaveform);
+            }
+        }
+
+        // Форматування часу аудіо
+        function formatAudioTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Клік по waveform для перемотування
+        function seekWaveform(e) {
+            const audio = document.getElementById('audioPlayer');
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percent = x / rect.width;
+            
+            if (audio.duration) {
+                audio.currentTime = percent * audio.duration;
+                if (!state.isPlaying) {
+                    animateWaveform();
+                }
+            }
+        }
+
+        // Ініціалізація
+        async function init() {
+            initParticles();
+            generateWaveform();
+            
+            // Синхронізуємо час
+            await syncTime();
+            
+            // Оновлюємо годинник кожну секунду
+            setInterval(updateClock, 1000);
+            updateClock();
+            
+            // Періодична повторна синхронізація (кожні 5 хвилин)
+            setInterval(syncTime, 300000);
+
+            // Обробники подій
+            document.getElementById('playBtn').addEventListener('click', togglePlay);
+            document.getElementById('waveformContainer').addEventListener('click', seekWaveform);
+            
+            const audio = document.getElementById('audioPlayer');
+            audio.addEventListener('ended', () => {
+                state.isPlaying = false;
+                document.getElementById('playBtn').textContent = '▶';
+            });
+
+            // Якщо аудіо завантажено, оновлюємо відображення
+            audio.addEventListener('loadedmetadata', () => {
+                document.getElementById('duration').textContent = formatAudioTime(audio.duration);
+            });
+        }
+
+        // Запуск при завантаженні
+        init();
+    </script>
+</body>
+</html>
