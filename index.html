@@ -19,7 +19,7 @@
         body {
             background: #0a0a0a;
             color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             min-height: 100dvh;
             display: flex;
@@ -47,6 +47,49 @@
             gap: clamp(20px, 5vh, 40px);
         }
 
+        /* Статус Wake Lock */
+        .wakelock-status {
+            position: fixed;
+            top: clamp(10px, 3vh, 20px);
+            right: clamp(10px, 3vw, 20px);
+            font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .wakelock-status.active {
+            opacity: 1;
+        }
+
+        .wakelock-dot {
+            width: clamp(6px, 2vw, 8px);
+            height: clamp(6px, 2vw, 8px);
+            border-radius: 50%;
+            background: #333;
+            transition: background 0.3s;
+        }
+
+        .wakelock-dot.on {
+            background: #00d4ff;
+            box-shadow: 0 0 10px #00d4ff;
+            animation: pulse-blue 2s infinite;
+        }
+
+        @keyframes pulse-blue {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Годинник */
         .clock-container {
             position: relative;
             width: 100%;
@@ -54,11 +97,11 @@
         }
 
         .clock {
-            font-size: clamp(3rem, 12vw, 8rem);
+            font-size: clamp(3.5rem, 14vw, 8rem);
             font-weight: 200;
             letter-spacing: 0.05em;
             font-variant-numeric: tabular-nums;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            text-shadow: 0 0 30px rgba(255,255,255,0.1);
             font-family: 'Courier New', monospace;
             line-height: 1;
             white-space: nowrap;
@@ -67,7 +110,7 @@
         .clock::after {
             content: '';
             position: absolute;
-            bottom: -5px;
+            bottom: -8px;
             left: 50%;
             transform: translateX(-50%);
             width: min(200px, 50vw);
@@ -76,21 +119,22 @@
         }
 
         .date-display {
-            font-size: clamp(0.8rem, 3vw, 1.1rem);
-            color: #666;
-            margin-top: clamp(10px, 3vh, 20px);
+            font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+            color: #888;
+            margin-top: clamp(15px, 4vh, 25px);
             text-transform: uppercase;
             letter-spacing: 0.2em;
             line-height: 1.4;
         }
 
+        /* Плеєр */
         .player-container {
             background: #111;
             border: 1px solid #333;
-            border-radius: clamp(8px, 2vw, 12px);
-            padding: clamp(12px, 4vw, 24px);
-            width: min(95%, 600px);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border-radius: clamp(10px, 3vw, 16px);
+            padding: clamp(15px, 5vw, 25px);
+            width: min(92%, 480px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9);
             flex-shrink: 0;
             margin: 0 auto;
             position: relative;
@@ -99,39 +143,38 @@
         .track-header {
             display: flex;
             align-items: center;
-            gap: clamp(10px, 3vw, 15px);
-            margin-bottom: clamp(10px, 3vw, 15px);
-            flex-wrap: wrap;
+            gap: clamp(12px, 4vw, 18px);
+            margin-bottom: clamp(12px, 4vw, 18px);
         }
 
         .play-btn {
-            width: clamp(44px, 12vw, 56px);
-            height: clamp(44px, 12vw, 56px);
+            width: clamp(52px, 15vw, 64px);
+            height: clamp(52px, 15vw, 64px);
             border-radius: 50%;
             background: #f50;
             border: none;
             color: white;
-            font-size: clamp(16px, 5vw, 20px);
+            font-size: clamp(20px, 6vw, 24px);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s, background 0.2s;
+            transition: all 0.2s;
             flex-shrink: 0;
             touch-action: manipulation;
-            -webkit-touch-callout: none;
-            position: relative;
-            z-index: 10;
+            box-shadow: 0 4px 20px rgba(255, 85, 0, 0.4);
         }
 
         .play-btn:hover, .play-btn:active {
-            transform: scale(1.05);
-            background: #e64a00;
+            transform: scale(1.08);
+            background: #ff6b35;
+            box-shadow: 0 6px 25px rgba(255, 85, 0, 0.5);
         }
 
         .play-btn:disabled {
             background: #333;
-            cursor: not-allowed;
+            box-shadow: none;
+            cursor: wait;
         }
 
         .track-info {
@@ -141,130 +184,128 @@
         }
 
         .track-title {
-            font-size: clamp(0.9rem, 4vw, 1.1rem);
+            font-size: clamp(1rem, 4.5vw, 1.2rem);
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-weight: 600;
         }
 
         .track-artist {
-            font-size: clamp(0.75rem, 3vw, 0.85rem);
-            color: #999;
+            font-size: clamp(0.8rem, 3.5vw, 0.9rem);
+            color: #aaa;
         }
 
-        .waveform-container {
+        /* Canvas візуалізація */
+        .visualizer-container {
             position: relative;
-            height: clamp(40px, 12vw, 70px);
-            background: #1a1a1a;
-            border-radius: 4px;
+            height: clamp(70px, 20vw, 110px);
+            background: #0a0a0a;
+            border-radius: 6px;
             overflow: hidden;
+            margin: clamp(10px, 3vw, 15px) 0;
             cursor: pointer;
-            margin: clamp(8px, 2vw, 15px) 0;
-            touch-action: none;
-            opacity: 0.5;
-            transition: opacity 0.3s;
+            border: 1px solid #222;
         }
 
-        .waveform-container.ready {
+        #visualizer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .visualizer-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            font-size: clamp(0.75rem, 3vw, 0.9rem);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .visualizer-container:not(.playing) .visualizer-overlay {
             opacity: 1;
         }
 
-        .waveform {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 100%;
-            padding: 0 2px;
-            gap: 1px;
-        }
-
-        .wave-bar {
-            flex: 1;
-            background: #444;
-            border-radius: 1px;
-            transition: background 0.1s;
-            min-width: 1px;
-        }
-
-        .wave-bar.played {
-            background: #f50;
-        }
-
-        .wave-bar:hover, .wave-bar:active {
-            background: #666;
-        }
-
-        .progress-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 2px;
-            background: #f50;
-            pointer-events: none;
-            box-shadow: 0 0 10px #f50;
-        }
-
+        /* Час */
         .time-display {
             display: flex;
             justify-content: space-between;
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
             color: #666;
             font-variant-numeric: tabular-nums;
-            margin-top: 5px;
+            margin-top: 8px;
+            padding: 0 5px;
         }
 
-        .auto-play-status {
-            margin-top: clamp(8px, 2vw, 12px);
-            padding: clamp(8px, 2vw, 10px);
+        .status-message {
+            margin-top: clamp(10px, 3vw, 15px);
+            padding: clamp(10px, 3vw, 12px);
             background: rgba(255, 85, 0, 0.1);
             border: 1px solid rgba(255, 85, 0, 0.3);
-            border-radius: 4px;
-            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            border-radius: 6px;
+            font-size: clamp(0.8rem, 3.5vw, 0.9rem);
             color: #f50;
             display: none;
-            line-height: 1.3;
+            line-height: 1.4;
         }
 
-        .auto-play-status.active {
+        .status-message.active {
             display: block;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+            50% { opacity: 0.7; }
         }
 
-        /* Повідомлення про помилку */
-        .error-message {
+        /* Посилання на GitHub */
+        .github-link {
             position: fixed;
-            top: 20px;
+            bottom: clamp(15px, 4vh, 25px);
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 0, 0, 0.9);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            z-index: 1000;
-            display: none;
-            max-width: 90%;
-            text-align: center;
+            z-index: 100;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
         }
 
-        .error-message.show {
-            display: block;
-            animation: slideDown 0.3s ease;
+        .github-link:hover, .github-link:active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(-50%) translateY(-2px);
         }
 
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .github-icon {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+            opacity: 0.8;
         }
 
+        .github-text {
+            color: #aaa;
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            font-weight: 500;
+        }
+
+        /* Фон */
         .bg-gradient {
             position: fixed;
             top: 0;
@@ -275,41 +316,17 @@
             z-index: 1;
         }
 
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            animation: float 20s infinite linear;
-        }
-
-        @keyframes float {
-            from { transform: translateY(100vh) translateX(0); }
-            to { transform: translateY(-10vh) translateX(100px); }
-        }
-
         .sync-status {
             position: fixed;
-            bottom: clamp(10px, 3vh, 20px);
+            bottom: clamp(60px, 12vh, 80px);
             right: clamp(10px, 3vw, 20px);
-            font-size: clamp(0.65rem, 2vw, 0.75rem);
-            color: #444;
+            font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+            color: #555;
             display: flex;
             align-items: center;
             gap: 6px;
             background: rgba(0,0,0,0.5);
-            padding: 4px 8px;
+            padding: 5px 10px;
             border-radius: 12px;
             backdrop-filter: blur(4px);
         }
@@ -324,7 +341,7 @@
 
         .sync-dot.synced {
             background: #0f0;
-            box-shadow: 0 0 8px #0f0;
+            box-shadow: 0 0 10px #0f0;
         }
 
         .sync-dot.syncing {
@@ -337,11 +354,21 @@
             50% { opacity: 0.3; }
         }
 
+        /* Приховане відео для iOS Wake Lock */
+        .hidden-video {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Альбомна орієнтація */
         @media (orientation: landscape) and (max-height: 500px) {
             .container {
                 flex-direction: row;
-                gap: 20px;
-                padding: 10px;
+                gap: 30px;
+                padding: 15px;
             }
             
             .clock-container {
@@ -349,17 +376,24 @@
             }
             
             .player-container {
-                width: min(50%, 400px);
+                width: min(45%, 380px);
                 flex-shrink: 0;
             }
             
             .clock {
-                font-size: clamp(2rem, 10vh, 4rem);
+                font-size: clamp(2.5rem, 10vh, 4rem);
             }
             
-            .date-display {
-                font-size: 0.7rem;
-                margin-top: 5px;
+            .github-link {
+                bottom: 10px;
+            }
+            
+            .sync-status {
+                bottom: 50px;
+            }
+            
+            .wakelock-status {
+                top: 10px;
             }
         }
 
@@ -368,52 +402,30 @@
                 font-size: 2.5rem;
             }
             
-            .waveform-container {
-                height: 35px;
-            }
-        }
-
-        @media (min-width: 768px) and (max-width: 1024px) {
-            .clock {
-                font-size: 6rem;
-            }
-            
-            .player-container {
-                max-width: 500px;
-            }
-        }
-
-        @media (min-width: 1200px) {
-            .container {
-                gap: 60px;
-            }
-        }
-
-        @supports (-webkit-touch-callout: none) {
-            body {
-                height: -webkit-fill-available;
-            }
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #000;
+            .visualizer-container {
+                height: 60px;
             }
         }
     </style>
 </head>
 <body>
     <div class="bg-gradient"></div>
-    <div class="particles" id="particles"></div>
-    
-    <div class="error-message" id="errorMessage"></div>
+
+    <!-- Статус Wake Lock -->
+    <div class="wakelock-status" id="wakelockStatus">
+        <span>Екран:</span>
+        <div class="wakelock-dot" id="wakelockDot"></div>
+        <span id="wakelockText">Авто</span>
+    </div>
 
     <div class="container">
+        <!-- Годинник -->
         <div class="clock-container">
             <div class="clock" id="clock">00:00:00</div>
             <div class="date-display" id="date">Завантаження...</div>
         </div>
 
+        <!-- Плеєр -->
         <div class="player-container">
             <div class="track-header">
                 <button class="play-btn" id="playBtn" aria-label="Відтворити">▶</button>
@@ -423,9 +435,9 @@
                 </div>
             </div>
 
-            <div class="waveform-container" id="waveformContainer">
-                <div class="waveform" id="waveform"></div>
-                <div class="progress-line" id="progressLine" style="left: 0%"></div>
+            <div class="visualizer-container" id="visualizerContainer">
+                <canvas id="visualizer"></canvas>
+                <div class="visualizer-overlay">Натисніть ▶ для відтворення</div>
             </div>
 
             <div class="time-display">
@@ -433,11 +445,24 @@
                 <span id="duration">--:--</span>
             </div>
 
-            <div class="auto-play-status" id="autoPlayStatus">
-                🔊 Автоматичне відтворення о 9:00 (Український час)
+            <div class="status-message" id="statusMessage">
+                🔊 Автоматичне відтворення о 9:00
             </div>
         </div>
     </div>
+
+    <!-- Приховане відео для iOS -->
+    <video class="hidden-video" id="hiddenVideo" loop playsinline muted>
+        <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAACKBtZGF0AAAC" type="video/mp4">
+    </video>
+
+    <!-- Посилання на GitHub -->
+    <a href="https://github.com/Carbon6600/minute-of-silence" target="_blank" class="github-link" aria-label="Відкрити репозиторій на GitHub">
+        <svg class="github-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+        <span class="github-text">GitHub</span>
+    </a>
 
     <div class="sync-status">
         <span>NTP:</span>
@@ -455,6 +480,7 @@
         const CONFIG = {
             targetHour: 9,
             targetMinute: 0,
+            timeZone: 'Europe/Kiev',
             ntpServers: [
                 'https://worldtimeapi.org/api/timezone/Europe/Kiev',
                 'https://timeapi.io/api/Time/current/zone?timeZone=Europe/Kiev'
@@ -466,53 +492,182 @@
             isPlaying: false,
             hasAutoPlayedToday: false,
             lastCheckDate: null,
+            audioLoaded: false,
+            audioContext: null,
+            analyser: null,
+            dataArray: null,
+            canvas: null,
+            ctx: null,
             animationId: null,
-            audioLoaded: false
+            wakeLock: null,
+            isWakeLockActive: false
         };
 
-        function showError(msg) {
-            const el = document.getElementById('errorMessage');
-            el.textContent = msg;
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 5000);
-        }
-
-        function initParticles() {
-            const container = document.getElementById('particles');
-            const isMobile = window.matchMedia('(pointer: coarse)').matches;
-            const count = isMobile ? 30 : 50;
-            
-            for (let i = 0; i < count; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.opacity = Math.random() * 0.5;
-                container.appendChild(particle);
+        // Wake Lock API
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    state.wakeLock = await navigator.wakeLock.request('screen');
+                    state.isWakeLockActive = true;
+                    updateWakeLockStatus(true, 'API');
+                    
+                    state.wakeLock.addEventListener('release', () => {
+                        state.isWakeLockActive = false;
+                        updateWakeLockStatus(false, 'API');
+                    });
+                } else {
+                    enableIOSWakeLock();
+                }
+            } catch (err) {
+                console.log('Wake Lock не вдалося:', err);
+                enableIOSWakeLock();
             }
         }
 
-        function generateWaveform() {
-            const container = document.getElementById('waveform');
-            const width = window.innerWidth;
-            const bars = width < 400 ? 60 : (width < 768 ? 80 : 100);
+        function enableIOSWakeLock() {
+            const video = document.getElementById('hiddenVideo');
+            if (video) {
+                video.play().then(() => {
+                    state.isWakeLockActive = true;
+                    updateWakeLockStatus(true, 'Video');
+                }).catch(() => {
+                    updateWakeLockStatus(false, 'Немає');
+                });
+            }
+        }
+
+        function releaseWakeLock() {
+            if (state.wakeLock) {
+                state.wakeLock.release();
+                state.wakeLock = null;
+            }
+            const video = document.getElementById('hiddenVideo');
+            if (video) {
+                video.pause();
+            }
+            state.isWakeLockActive = false;
+            updateWakeLockStatus(false, 'Авто');
+        }
+
+        function updateWakeLockStatus(active, type) {
+            const statusEl = document.getElementById('wakelockStatus');
+            const dotEl = document.getElementById('wakelockDot');
+            const textEl = document.getElementById('wakelockText');
             
-            container.innerHTML = '';
+            statusEl.classList.add('active');
+            dotEl.classList.toggle('on', active);
+            textEl.textContent = active ? 'Увімк.' : type;
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (state.wakeLock) {
+                    updateWakeLockStatus(false, 'Фон');
+                }
+            } else {
+                requestWakeLock();
+            }
+        });
+
+        // Ініціалізація Canvas
+        function initVisualizer() {
+            state.canvas = document.getElementById('visualizer');
+            state.ctx = state.canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            drawStaticWave();
+        }
+
+        function resizeCanvas() {
+            const container = document.getElementById('visualizerContainer');
+            state.canvas.width = container.offsetWidth;
+            state.canvas.height = container.offsetHeight;
+            if (!state.isPlaying) drawStaticWave();
+        }
+
+        function drawStaticWave() {
+            const ctx = state.ctx;
+            const width = state.canvas.width;
+            const height = state.canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#f50';
+            
+            const barWidth = 3;
+            const gap = 2;
+            const bars = Math.floor(width / (barWidth + gap));
+            const centerY = height / 2;
             
             for (let i = 0; i < bars; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'wave-bar';
-                const height = 20 + Math.random() * 80;
-                bar.style.height = height + '%';
-                container.appendChild(bar);
+                const x = i * (barWidth + gap);
+                const waveHeight = Math.sin(i * 0.1) * 5 + 3;
+                ctx.fillRect(x, centerY - waveHeight/2, barWidth, waveHeight);
             }
         }
 
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(generateWaveform, 250);
-        });
+        function animateVisualizer() {
+            if (!state.isPlaying || !state.analyser) {
+                drawStaticWave();
+                return;
+            }
+
+            const ctx = state.ctx;
+            const width = state.canvas.width;
+            const height = state.canvas.height;
+            
+            state.analyser.getByteFrequencyData(state.dataArray);
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const barWidth = Math.max(3, width / 100);
+            const gap = 2;
+            const bars = Math.min(100, Math.floor(width / (barWidth + gap)));
+            const step = Math.floor(state.dataArray.length / bars);
+            
+            const gradient = ctx.createLinearGradient(0, height, 0, 0);
+            gradient.addColorStop(0, '#f50');
+            gradient.addColorStop(0.5, '#ff8533');
+            gradient.addColorStop(1, '#ffb380');
+            
+            ctx.fillStyle = gradient;
+            
+            for (let i = 0; i < bars; i++) {
+                const dataIndex = i * step;
+                const value = state.dataArray[dataIndex];
+                const percent = value / 255;
+                const barHeight = percent * height * 0.9;
+                
+                const x = i * (barWidth + gap);
+                const y = (height - barHeight) / 2;
+                
+                ctx.beginPath();
+                ctx.roundRect(x, y, barWidth, Math.max(barHeight, 4), 2);
+                ctx.fill();
+            }
+            
+            updateTimeDisplay();
+            state.animationId = requestAnimationFrame(animateVisualizer);
+        }
+
+        function setupAudioContext() {
+            const audio = document.getElementById('audioPlayer');
+            
+            if (!state.audioContext) {
+                state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                state.analyser = state.audioContext.createAnalyser();
+                state.analyser.fftSize = 256;
+                
+                const source = state.audioContext.createMediaElementSource(audio);
+                source.connect(state.analyser);
+                state.analyser.connect(state.audioContext.destination);
+                
+                state.dataArray = new Uint8Array(state.analyser.frequencyBinCount);
+            }
+            
+            if (state.audioContext.state === 'suspended') {
+                state.audioContext.resume();
+            }
+        }
 
         async function syncTime() {
             const syncDot = document.getElementById('syncDot');
@@ -563,8 +718,10 @@
             }
         }
 
-        function getSyncedTime() {
-            return new Date(Date.now() + state.timeOffset);
+        function getKyivTime() {
+            const now = new Date(Date.now() + state.timeOffset);
+            const kyivTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Kiev"}));
+            return kyivTime;
         }
 
         function formatTime(date) {
@@ -572,8 +729,7 @@
                 hour12: false, 
                 hour: '2-digit', 
                 minute: '2-digit', 
-                second: '2-digit',
-                timeZone: 'Europe/Kiev'
+                second: '2-digit'
             });
         }
 
@@ -582,27 +738,26 @@
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
-                day: 'numeric',
-                timeZone: 'Europe/Kiev'
+                day: 'numeric'
             });
         }
 
         function updateClock() {
-            const now = getSyncedTime();
-            document.getElementById('clock').textContent = formatTime(now);
-            document.getElementById('date').textContent = formatDate(now);
-            checkAutoPlay(now);
+            const kyivTime = getKyivTime();
+            document.getElementById('clock').textContent = formatTime(kyivTime);
+            document.getElementById('date').textContent = formatDate(kyivTime);
+            checkAutoPlay(kyivTime);
         }
 
-        function checkAutoPlay(now) {
-            const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
-            const currentDate = now.toDateString();
+        function checkAutoPlay(kyivTime) {
+            const currentHour = kyivTime.getHours();
+            const currentMinute = kyivTime.getMinutes();
+            const currentDate = kyivTime.toDateString();
 
             if (state.lastCheckDate !== currentDate) {
                 state.hasAutoPlayedToday = false;
                 state.lastCheckDate = currentDate;
-                document.getElementById('autoPlayStatus').classList.remove('active');
+                document.getElementById('statusMessage').classList.remove('active');
             }
 
             if (!state.hasAutoPlayedToday && 
@@ -612,76 +767,16 @@
                 
                 playAudio();
                 state.hasAutoPlayedToday = true;
-                document.getElementById('autoPlayStatus').classList.add('active');
+                document.getElementById('statusMessage').classList.add('active');
+                document.getElementById('statusMessage').textContent = '🔊 Зараз грає хвилина мовчання';
             }
         }
 
-        function playAudio() {
+        function updateTimeDisplay() {
             const audio = document.getElementById('audioPlayer');
-            const btn = document.getElementById('playBtn');
-            
-            if (!state.audioLoaded) {
-                showError('Аудіо ще завантажується...');
-                return;
-            }
-            
-            const playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    state.isPlaying = true;
-                    btn.textContent = '⏸';
-                    animateWaveform();
-                }).catch(err => {
-                    console.error('Помилка відтворення:', err);
-                    if (err.name === 'NotAllowedError') {
-                        document.getElementById('autoPlayStatus').textContent = 
-                            '⚠️ Торкніться Play для відтворення (браузер блокує автовідтворення)';
-                        document.getElementById('autoPlayStatus').classList.add('active');
-                        showError('Браузер блокує автовідтворення. Натисніть Play вручну.');
-                    } else {
-                        showError('Помилка відтворення: ' + err.message);
-                    }
-                });
-            }
-        }
-
-        function pauseAudio() {
-            const audio = document.getElementById('audioPlayer');
-            const btn = document.getElementById('playBtn');
-            
-            audio.pause();
-            state.isPlaying = false;
-            btn.textContent = '▶';
-            cancelAnimationFrame(state.animationId);
-        }
-
-        function togglePlay() {
-            if (state.isPlaying) {
-                pauseAudio();
-            } else {
-                playAudio();
-            }
-        }
-
-        function animateWaveform() {
-            const audio = document.getElementById('audioPlayer');
-            if (!audio.duration) return;
-
-            const progress = (audio.currentTime / audio.duration) * 100;
-            document.getElementById('progressLine').style.left = progress + '%';
-            
-            const bars = document.querySelectorAll('.wave-bar');
-            const playedBars = Math.floor((progress / 100) * bars.length);
-            
-            bars.forEach((bar, index) => {
-                bar.classList.toggle('played', index < playedBars);
-            });
-
-            document.getElementById('currentTime').textContent = formatAudioTime(audio.currentTime);
-            
-            if (state.isPlaying) {
-                state.animationId = requestAnimationFrame(animateWaveform);
+            if (audio.duration) {
+                document.getElementById('currentTime').textContent = formatAudioTime(audio.currentTime);
+                document.getElementById('duration').textContent = formatAudioTime(audio.duration);
             }
         }
 
@@ -692,95 +787,115 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        function handleWaveformInteraction(e) {
-            e.preventDefault();
+        function playAudio() {
             const audio = document.getElementById('audioPlayer');
-            const container = e.currentTarget;
-            const rect = container.getBoundingClientRect();
+            const btn = document.getElementById('playBtn');
+            const container = document.getElementById('visualizerContainer');
             
-            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            const x = clientX - rect.left;
-            const percent = Math.max(0, Math.min(1, x / rect.width));
+            if (!state.audioLoaded) return;
+            
+            setupAudioContext();
+            requestWakeLock();
+            
+            audio.play().then(() => {
+                state.isPlaying = true;
+                btn.textContent = '⏸';
+                container.classList.add('playing');
+                animateVisualizer();
+            }).catch(err => {
+                if (err.name === 'NotAllowedError') {
+                    document.getElementById('statusMessage').textContent = 
+                        '⚠️ Торкніться Play для відтворення';
+                    document.getElementById('statusMessage').classList.add('active');
+                }
+            });
+        }
+
+        function pauseAudio() {
+            const audio = document.getElementById('audioPlayer');
+            const btn = document.getElementById('playBtn');
+            const container = document.getElementById('visualizerContainer');
+            
+            audio.pause();
+            state.isPlaying = false;
+            btn.textContent = '▶';
+            container.classList.remove('playing');
+            cancelAnimationFrame(state.animationId);
+            drawStaticWave();
+        }
+
+        function togglePlay() {
+            if (state.isPlaying) {
+                pauseAudio();
+            } else {
+                playAudio();
+            }
+        }
+
+        function seekAudio(e) {
+            const audio = document.getElementById('audioPlayer');
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const percent = x / rect.width;
             
             if (audio.duration) {
                 audio.currentTime = percent * audio.duration;
                 if (!state.isPlaying) {
-                    animateWaveform();
+                    updateTimeDisplay();
                 }
             }
         }
 
-        function setupAudio() {
+        function init() {
+            initVisualizer();
+            requestWakeLock();
+            
             const audio = document.getElementById('audioPlayer');
             const btn = document.getElementById('playBtn');
-            const waveformContainer = document.getElementById('waveformContainer');
             
-            // Перевіряємо чи можемо завантажити аудіо
             audio.addEventListener('canplaythrough', () => {
                 state.audioLoaded = true;
-                waveformContainer.classList.add('ready');
                 document.getElementById('duration').textContent = formatAudioTime(audio.duration);
-                console.log('Аудіо завантажено:', audio.duration);
             }, { once: true });
             
-            audio.addEventListener('error', (e) => {
-                console.error('Помилка завантаження аудіо:', e);
-                showError('Не вдалося завантажити аудіофайл. Перевірте шлях: silence.mp3');
+            audio.addEventListener('error', () => {
                 btn.disabled = true;
             });
             
             audio.addEventListener('ended', () => {
-                state.isPlaying = false;
-                btn.textContent = '▶';
+                pauseAudio();
             });
-
-            // Примусове завантаження
+            
             audio.load();
-        }
-
-        async function init() {
-            initParticles();
-            generateWaveform();
-            setupAudio();
-            await syncTime();
             
-            setInterval(updateClock, 1000);
-            updateClock();
-            setInterval(syncTime, 300000);
-
-            const playBtn = document.getElementById('playBtn');
-            playBtn.addEventListener('click', togglePlay);
+            btn.addEventListener('click', togglePlay);
             
-            // Покращена підтримка торкань
-            playBtn.addEventListener('touchstart', (e) => {
+            btn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                playBtn.style.transform = 'scale(0.95)';
+                btn.style.transform = 'scale(0.95)';
             }, { passive: false });
             
-            playBtn.addEventListener('touchend', (e) => {
+            btn.addEventListener('touchend', (e) => {
                 e.preventDefault();
-                playBtn.style.transform = '';
+                btn.style.transform = '';
                 togglePlay();
             });
-
-            const waveformContainer = document.getElementById('waveformContainer');
-            waveformContainer.addEventListener('click', handleWaveformInteraction);
-            waveformContainer.addEventListener('touchstart', handleWaveformInteraction, { passive: false });
-            waveformContainer.addEventListener('touchmove', (e) => {
+            
+            const visualizerContainer = document.getElementById('visualizerContainer');
+            visualizerContainer.addEventListener('click', seekAudio);
+            visualizerContainer.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                handleWaveformInteraction(e);
+                seekAudio(e);
             }, { passive: false });
-
+            
             if ('vibrate' in navigator) {
-                playBtn.addEventListener('click', () => navigator.vibrate(50));
+                btn.addEventListener('click', () => navigator.vibrate(50));
             }
             
-            // Перевірка видимості сторінки
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) {
-                    syncTime();
-                    updateClock();
-                }
+            syncTime().then(() => {
+                setInterval(updateClock, 1000);
+                updateClock();
+                setInterval(syncTime, 300000);
             });
         }
 
