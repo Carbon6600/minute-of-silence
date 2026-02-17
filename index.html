@@ -198,7 +198,7 @@
             color: #aaa;
         }
 
-        /* Canvas візуалізація */
+        /* Canvas візуалізація з прогрес-баром */
         .visualizer-container {
             position: relative;
             height: clamp(70px, 20vw, 110px);
@@ -214,6 +214,18 @@
             width: 100%;
             height: 100%;
             display: block;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            pointer-events: none;
+            z-index: 10;
         }
 
         .visualizer-overlay {
@@ -437,6 +449,7 @@
 
             <div class="visualizer-container" id="visualizerContainer">
                 <canvas id="visualizer"></canvas>
+                <div class="progress-line" id="progressLine" style="left: 0%"></div>
                 <div class="visualizer-overlay">Натисніть ▶ для відтворення</div>
             </div>
 
@@ -603,6 +616,19 @@
                 const waveHeight = Math.sin(i * 0.1) * 5 + 3;
                 ctx.fillRect(x, centerY - waveHeight/2, barWidth, waveHeight);
             }
+            
+            // Оновлюємо позицію прогрес-лінії навіть коли пауза
+            updateProgressLine();
+        }
+
+        function updateProgressLine() {
+            const audio = document.getElementById('audioPlayer');
+            const progressLine = document.getElementById('progressLine');
+            
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressLine.style.left = progress + '%';
+            }
         }
 
         function animateVisualizer() {
@@ -645,7 +671,10 @@
                 ctx.fill();
             }
             
+            // Оновлюємо прогрес-лінію під час відтворення
+            updateProgressLine();
             updateTimeDisplay();
+            
             state.animationId = requestAnimationFrame(animateVisualizer);
         }
 
@@ -787,6 +816,29 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
+        // ПЕРЕМОТКА — клік на візуалізатор
+        function seekAudio(e) {
+            const audio = document.getElementById('audioPlayer');
+            const container = document.getElementById('visualizerContainer');
+            const rect = container.getBoundingClientRect();
+            
+            // Підтримка і миші, і торкання
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const x = clientX - rect.left;
+            const percent = Math.max(0, Math.min(1, x / rect.width));
+            
+            if (audio.duration) {
+                audio.currentTime = percent * audio.duration;
+                updateProgressLine();
+                updateTimeDisplay();
+                
+                // Вібрація на мобільних
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(20);
+                }
+            }
+        }
+
         function playAudio() {
             const audio = document.getElementById('audioPlayer');
             const btn = document.getElementById('playBtn');
@@ -832,26 +884,13 @@
             }
         }
 
-        function seekAudio(e) {
-            const audio = document.getElementById('audioPlayer');
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = (e.clientX || e.touches[0].clientX) - rect.left;
-            const percent = x / rect.width;
-            
-            if (audio.duration) {
-                audio.currentTime = percent * audio.duration;
-                if (!state.isPlaying) {
-                    updateTimeDisplay();
-                }
-            }
-        }
-
         function init() {
             initVisualizer();
             requestWakeLock();
             
             const audio = document.getElementById('audioPlayer');
             const btn = document.getElementById('playBtn');
+            const visualizerContainer = document.getElementById('visualizerContainer');
             
             audio.addEventListener('canplaythrough', () => {
                 state.audioLoaded = true;
@@ -866,8 +905,14 @@
                 pauseAudio();
             });
             
+            // Оновлюємо прогрес при завантаженні метаданих
+            audio.addEventListener('loadedmetadata', () => {
+                updateProgressLine();
+            });
+            
             audio.load();
             
+            // Кнопка Play/Pause
             btn.addEventListener('click', togglePlay);
             
             btn.addEventListener('touchstart', (e) => {
@@ -881,12 +926,44 @@
                 togglePlay();
             });
             
-            const visualizerContainer = document.getElementById('visualizerContainer');
+            // ПЕРЕМОТКА — клік і свайп по візуалізатору
             visualizerContainer.addEventListener('click', seekAudio);
             visualizerContainer.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 seekAudio(e);
             }, { passive: false });
+            
+            // Свайп для перемотки (touchmove)
+            let isDragging = false;
+            
+            visualizerContainer.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                isDragging = true;
+                seekAudio(e);
+            }, { passive: false });
+            
+            visualizerContainer.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+            
+            // Миша для десктопу
+            visualizerContainer.addEventListener('mousedown', () => {
+                isDragging = true;
+            });
+            
+            visualizerContainer.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    seekAudio(e);
+                }
+            });
+            
+            visualizerContainer.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            visualizerContainer.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
             
             if ('vibrate' in navigator) {
                 btn.addEventListener('click', () => navigator.vibrate(50));
