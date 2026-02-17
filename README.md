@@ -26,4 +26,3 @@
 - NTP синхронізація (WorldTimeAPI, TimeAPI.io)
 - Чистий JavaScript (без зовнішніх бібліотек)
 
-## Структура
