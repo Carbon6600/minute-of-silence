@@ -1,9 +1,12 @@
 # ⏱️ Хвилина мовчання
 
 <a href="https://carbon6600.github.io/minute-of-silence/" target="_blank" rel="noopener noreferrer">
-  <img width="832" height="572" alt="Знімок екрана 2026-02-17 084928" 
-       src="https://github.com/user-attachments/assets/cb03482a-3559-449c-b965-acdcd37e0358" />
+  <img width="674" height="553" alt="Знімок екрана 2026-02-17 093342" 
+       src="https://github.com/user-attachments/assets/73d0d9f7-f410-4ac0-8a66-f1a89cdf1f36" />
 </a>
+
+
+
 
 Щоденне вшанування пам'яті о 9:00 за київським часом.
 
